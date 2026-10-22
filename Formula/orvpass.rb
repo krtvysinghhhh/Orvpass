@@ -2,7 +2,7 @@ class Orvpass < Formula
   desc "Ultra-fast, zero-knowledge terminal password & secrets manager"
   homepage "https://github.com/krtvysinghhhh/Orvpass"
   url "https://github.com/krtvysinghhhh/Orvpass/archive/refs/tags/v5.5.0.tar.gz"
-  sha256 "2699bd0e7b9405a6974e1ce421eab78913ec6663eb4b1ad022d0590c77b26d02"
+  sha256 "355ad0f0198a075f9507fe21aab91b80c78f8e4bda7c58a4704ae63b04fbe5e6"
   license "Apache-2.0"
   head "https://github.com/krtvysinghhhh/Orvpass.git", branch: "main"
 
