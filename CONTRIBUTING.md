@@ -4,7 +4,7 @@ We welcome contributions from the community!
 
 ## Development Setup
 ```bash
-git clone https://github.com/krtvysinghh/Orvpass.git
+git clone https://github.com/krtvysinghhhh/Orvpass.git
 cd Orvpass
 cargo test --workspace
 cargo run -p orvpass-cli -- --help

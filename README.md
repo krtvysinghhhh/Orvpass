@@ -6,8 +6,8 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/language-Rust_1.85+-orange.svg)](https://www.rust-lang.org)
 [![Security](https://img.shields.io/badge/crypto-Argon2id_%2B_ChaCha20--Poly1305-emerald.svg)](SECURITY.md)
-[![Release](https://img.shields.io/badge/release-v5.5.0-indigo.svg)](https://github.com/krtvyasingh/Orvpass/releases/tag/v5.5.0)
-[![CI Tests](https://img.shields.io/badge/tests-100%25_passing-success.svg)](https://github.com/krtvyasingh/Orvpass/actions)
+[![Release](https://img.shields.io/badge/release-v5.5.0-indigo.svg)](https://github.com/krtvysinghhhh/Orvpass/releases/tag/v5.5.0)
+[![CI Tests](https://img.shields.io/badge/tests-100%25_passing-success.svg)](https://github.com/krtvysinghhhh/Orvpass/actions)
 [![Startup](https://img.shields.io/badge/startup-%3C1ms-brightgreen.svg)](#-cryptographic-specifications--benchmarks)
 
 <p align="center">
@@ -72,18 +72,18 @@ Orvpass v5.5.0 includes high-frequency shortcuts designed for daily-driver devel
 
 ### 🍺 Via Homebrew (macOS & Linux)
 ```bash
-brew tap krtvyasingh/tap
+brew tap krtvysinghhhh/tap
 brew install orvpass-cli
 ```
 
 ### ⚡ Via 1-Line Shell Installer
 ```bash
-curl -fsSL https://raw.githubusercontent.com/krtvyasingh/Orvpass/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/krtvysinghhhh/Orvpass/main/install.sh | sh
 ```
 
 ### 🦀 Via Cargo
 ```bash
-cargo install --git https://github.com/krtvyasingh/Orvpass.git orvpass-cli
+cargo install --git https://github.com/krtvysinghhhh/Orvpass.git orvpass-cli
 ```
 
 ---
@@ -285,6 +285,6 @@ orvpass completions fish > ~/.config/fish/completions/orvpass.fish
 
 ## 📄 License & Security
 
-- **License**: Apache License 2.0. Copyright (c) 2026 krtvyasingh.
+- **License**: Apache License 2.0. Copyright (c) 2026 krtvysinghhhh.
 - **Security Policy**: See [SECURITY.md](SECURITY.md) for vulnerability disclosure procedures.
 - **Verification**: All 35+ test suites pass in continuous integration with zero warnings.
