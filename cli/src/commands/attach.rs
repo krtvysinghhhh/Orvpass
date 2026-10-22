@@ -23,10 +23,12 @@ pub fn attach_file(item_title: &str, file_path: &str) {
     let encoded = general_purpose::STANDARD.encode(&file_bytes);
 
     let mut items = database::load_items();
-    if let Some(item) = items.iter_mut().find(|i| i.title.eq_ignore_ascii_case(item_title)) {
+    let found = items.iter_mut().find(|i| i.title.eq_ignore_ascii_case(item_title));
+    if let Some(item) = found {
         item.add_custom_field(&format!("attachment:{}", filename), &encoded, true);
+        let title = item.title.clone();
         let _ = database::save_items(&items);
-        println!("\x1b[1;38;2;52;211;153m✔ Successfully attached '{}' ({} bytes) to credential '{}'!\x1b[0m", filename, file_bytes.len(), item.title);
+        println!("\x1b[1;38;2;52;211;153m✔ Successfully attached '{}' ({} bytes) to credential '{}'!\x1b[0m", filename, file_bytes.len(), title);
     } else {
         println!("\x1b[1;38;2;248;113;113m✖ Credential '{}' not found in vault.\x1b[0m", item_title);
     }

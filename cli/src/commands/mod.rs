@@ -23,3 +23,5 @@ pub mod pick;
 pub mod attach;
 pub mod history;
 pub mod config_cmd;
+pub mod backup;
+pub mod health;

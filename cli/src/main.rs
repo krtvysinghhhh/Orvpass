@@ -333,6 +333,51 @@ pub enum Commands {
     /// Auto-detect active shell and configuration tips
     WhichShell,
 
+    /// Create timestamped encrypted snapshot backup of the vault
+    Backup {
+        #[arg(short, long)]
+        output: Option<String>,
+    },
+
+    /// Restore vault items from an encrypted snapshot backup
+    Restore {
+        file: String,
+    },
+
+    /// Comprehensive 0-100 Vault Health & Security Rating
+    Health,
+
+    /// Instant interactive fuzzy picker to copy credentials
+    Pick,
+
+    /// Encrypt and attach a file to a vault credential
+    Attach {
+        item: String,
+        file: String,
+    },
+
+    /// Decrypt and extract an attached file from a vault credential
+    Extract {
+        item: String,
+        attachment: String,
+        #[arg(short, long)]
+        output: Option<String>,
+    },
+
+    /// View revision timeline and integrity history for a credential
+    History {
+        item: String,
+    },
+
+    /// View or update CLI user configuration preferences
+    Config {
+        #[arg(default_value = "list")]
+        action: String,
+        key: Option<String>,
+        value: Option<String>,
+    },
+
+
     /// Show version and build identity
     Version,
 }
@@ -605,6 +650,31 @@ fn main() -> anyhow::Result<()> {
         Some(Commands::WhichShell) => {
             commands::convenience::detect_current_shell();
         }
+        Some(Commands::Backup { output }) => {
+            commands::backup::execute_backup(output);
+        }
+        Some(Commands::Restore { file }) => {
+            commands::backup::execute_restore(&file);
+        }
+        Some(Commands::Health) => {
+            commands::health::execute_health();
+        }
+        Some(Commands::Pick) => {
+            commands::pick::execute_pick();
+        }
+        Some(Commands::Attach { item, file }) => {
+            commands::attach::attach_file(&item, &file);
+        }
+        Some(Commands::Extract { item, attachment, output }) => {
+            commands::attach::extract_file(&item, &attachment, output);
+        }
+        Some(Commands::History { item }) => {
+            commands::history::show_history(&item);
+        }
+        Some(Commands::Config { action, key, value }) => {
+            commands::config_cmd::handle_config(&action, key, value);
+        }
+
         Some(Commands::Version) => {
             output::banner();
             println!("  Engine:   Argon2id (m=64MB, t=3, p=4) + ChaCha20-Poly1305 AEAD");
