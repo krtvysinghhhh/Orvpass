@@ -1,4 +1,4 @@
-name: 'Publish Pure Rust CLI & TUI Binary Releases'
+name: 'Publish Multi-Platform Binary Releases'
 
 on:
   push:
@@ -15,47 +15,63 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64-apple-darwin
-            os: macos-latest
-            asset_name: orvpass-v5.0.0-macos-x86_64.tar.gz
           - target: aarch64-apple-darwin
             os: macos-latest
-            asset_name: orvpass-v5.0.0-macos-arm64.tar.gz
+            platform: macos-arm64
+            archive_type: tar
+          - target: x86_64-apple-darwin
+            os: macos-13
+            platform: macos-x86_64
+            archive_type: tar
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            asset_name: orvpass-v5.0.0-linux-x86_64.tar.gz
+            platform: linux-x86_64
+            archive_type: tar
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            asset_name: orvpass-v5.0.0-windows-x86_64.zip
+            platform: windows-x86_64
+            archive_type: zip
 
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Resolve Version
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          if [ -z "$VERSION" ] || [ "$VERSION" = "main" ]; then
+            VERSION="v5.5.0"
+          fi
+          echo "ORVPASS_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
 
-      - name: Build Binary
+      - name: Build Release Binary
         run: cargo build --release -p orvpass-cli --target ${{ matrix.target }}
 
       - name: Package Unix Archive
-        if: matrix.os != 'windows-latest'
-        run: |
-          mkdir -p release_assets
-          cp target/${{ matrix.target }}/release/orvpass orvpass
-          tar -czf release_assets/${{ matrix.asset_name }} orvpass README.md LICENSE
-          cd release_assets && sha256sum ${{ matrix.asset_name }} > ${{ matrix.asset_name }}.sha256
-
-      - name: Package Windows Archive
-        if: matrix.os == 'windows-latest'
+        if: matrix.archive_type == 'tar'
         shell: bash
         run: |
           mkdir -p release_assets
+          ASSET_NAME="orvpass-${ORVPASS_VERSION}-${{ matrix.platform }}.tar.gz"
+          cp target/${{ matrix.target }}/release/orvpass orvpass
+          tar -czf "release_assets/${ASSET_NAME}" orvpass README.md LICENSE
+          cd release_assets && shasum -a 256 "${ASSET_NAME}" > "${ASSET_NAME}.sha256"
+
+      - name: Package Windows Archive
+        if: matrix.archive_type == 'zip'
+        shell: bash
+        run: |
+          mkdir -p release_assets
+          ASSET_NAME="orvpass-${ORVPASS_VERSION}-${{ matrix.platform }}.zip"
           cp target/${{ matrix.target }}/release/orvpass.exe orvpass.exe
-          7z a release_assets/${{ matrix.asset_name }} orvpass.exe README.md LICENSE
-          cd release_assets && certutil -hashfile ${{ matrix.asset_name }} SHA256 > ${{ matrix.asset_name }}.sha256
+          7z a "release_assets/${ASSET_NAME}" orvpass.exe README.md LICENSE
+          cd release_assets && sha256sum "${ASSET_NAME}" > "${ASSET_NAME}.sha256"
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2

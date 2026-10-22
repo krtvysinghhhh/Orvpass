@@ -1,0 +1,20 @@
+{
+    "version": "5.5.0",
+    "description": "Ultra-fast, zero-knowledge terminal password & secrets manager in pure Rust",
+    "homepage": "https://github.com/krtvysinghhhh/Orvpass",
+    "license": "Apache-2.0",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/krtvysinghhhh/Orvpass/releases/download/v5.5.0/orvpass-v5.5.0-windows-x86_64.zip",
+            "bin": "orvpass.exe"
+        }
+    },
+    "checkver": "github",
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/krtvysinghhhh/Orvpass/releases/download/v$version/orvpass-v$version-windows-x86_64.zip"
+            }
+        }
+    }
+}

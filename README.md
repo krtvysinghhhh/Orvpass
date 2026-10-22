@@ -73,15 +73,37 @@ Orvpass v5.5.0 includes high-frequency shortcuts designed for daily-driver devel
 ### 🍺 Via Homebrew (macOS & Linux)
 ```bash
 brew tap krtvysinghhhh/tap
-brew install orvpass-cli
+brew install orvpass
 ```
-
-### ⚡ Via 1-Line Shell Installer
+*Or install in a single command:*
 ```bash
-curl -fsSL https://raw.githubusercontent.com/krtvysinghhhh/Orvpass/main/install.sh | sh
+brew install krtvysinghhhh/tap/orvpass
 ```
 
-### 🦀 Via Cargo
+### 🐧 Via Linux & macOS Terminal (1-Line Installer)
+Works on all Linux distributions (Ubuntu, Debian, Fedora, Arch, Alpine, CentOS) and macOS:
+```bash
+curl -fsSL https://raw.githubusercontent.com/krtvysinghhhh/Orvpass/main/install.sh | bash
+```
+
+### 🪟 Via Windows PowerShell & Windows Terminal
+Open PowerShell or Windows Terminal and run:
+```powershell
+irm https://raw.githubusercontent.com/krtvysinghhhh/Orvpass/main/install.ps1 | iex
+```
+
+### 💻 Via Windows Command Prompt (`cmd.exe`)
+Open Command Prompt and run:
+```cmd
+powershell -ExecutionPolicy Bypass -c "irm https://raw.githubusercontent.com/krtvysinghhhh/Orvpass/main/install.ps1 | iex"
+```
+
+### 🍨 Via Scoop (Windows)
+```bash
+scoop install https://raw.githubusercontent.com/krtvysinghhhh/Orvpass/main/scoop/orvpass.json
+```
+
+### 🦀 Via Cargo (Universal Rust)
 ```bash
 cargo install --git https://github.com/krtvysinghhhh/Orvpass.git orvpass-cli
 ```
@@ -258,27 +280,51 @@ orvpass orvsend <text> [--expires 24] # Ephemeral end-to-end encrypted secret dr
 
 ## 🐚 Shell Integration & Auto-Aliases
 
-Supercharge your daily terminal workflow by activating native shell shortcuts:
+Supercharge your daily terminal workflow across macOS, Linux, and Windows:
 
+### 🍏 / 🐧 macOS & Linux (Zsh, Bash, Fish)
 ```bash
-# Add to ~/.zshrc, ~/.bashrc, or config.fish:
+# Add to ~/.zshrc, ~/.bashrc, or ~/.config/fish/config.fish:
 eval "$(orvpass init-shell)"
 ```
 
-Installed aliases:
-- `op` -> `orvpass`
+### 🪟 Windows PowerShell
+```powershell
+# Add to your PowerShell profile ($PROFILE):
+orvpass init-shell | Out-File -Append $PROFILE
+```
+
+### 💻 Windows Command Prompt (`cmd.exe`)
+Run or add to your startup `doskey` autorun:
+```cmd
+doskey op=orvpass $*
+doskey opg=orvpass get $*
+doskey opc=orvpass cp $*
+doskey opl=orvpass list $*
+```
+
+### ⚡ Installed Aliases
+- `op` -> `orvpass` (launches interactive TUI dashboard)
 - `opg` -> `orvpass get`
-- `opc` -> `orvpass cp` (copy password)
-- `opcu` -> `orvpass cpu` (copy username)
-- `opct` -> `orvpass cpt` (copy 2FA TOTP)
+- `opc` -> `orvpass cp` (instant password copy with 15s auto-wipe)
+- `opcu` -> `orvpass cpu` (instant username copy)
+- `opct` -> `orvpass cpt` (instant 2FA TOTP token copy)
 - `opl` -> `orvpass list`
 - `opgen` -> `orvpass generate`
 
 Generate autocomplete scripts:
 ```bash
+# Zsh
 orvpass completions zsh > ~/.zfunc/_orvpass
+
+# Bash
 orvpass completions bash > /etc/bash_completion.d/orvpass
+
+# Fish
 orvpass completions fish > ~/.config/fish/completions/orvpass.fish
+
+# PowerShell
+orvpass completions powershell > $HOME\.config\powershell\completions\orvpass.ps1
 ```
 
 ---

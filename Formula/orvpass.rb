@@ -1,33 +1,18 @@
-class OrvpassCli < Formula
+class Orvpass < Formula
   desc "Ultra-fast, zero-knowledge terminal password & secrets manager"
-  homepage "https://github.com/krtvysinghh/Orvpass"
-  version "5.0.0"
+  homepage "https://github.com/krtvysinghhhh/Orvpass"
+  url "https://github.com/krtvysinghhhh/Orvpass/archive/refs/tags/v5.5.0.tar.gz"
+  sha256 "2699bd0e7b9405a6974e1ce421eab78913ec6663eb4b1ad022d0590c77b26d02"
   license "Apache-2.0"
+  head "https://github.com/krtvysinghhhh/Orvpass.git", branch: "main"
 
-  on_macos do
-    if Hardware::CPU.arm?
-      url "https://github.com/krtvysinghh/Orvpass/releases/download/v5.0.0/orvpass-v5.0.0-macos-arm64.tar.gz"
-      sha256 "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    else
-      url "https://github.com/krtvysinghh/Orvpass/releases/download/v5.0.0/orvpass-v5.0.0-macos-x86_64.tar.gz"
-      sha256 "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    end
-  end
-
-  on_linux do
-    url "https://github.com/krtvysinghh/Orvpass/releases/download/v5.0.0/orvpass-v5.0.0-linux-x86_64.tar.gz"
-    sha256 "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  end
+  depends_on "rust" => :build
 
   def install
-    bin.install "orvpass"
-    
-    # Generate shell completions
-    generate_completions_from_executable(bin/"orvpass", "completions")
+    system "cargo", "install", *std_cargo_args(path: "cli")
   end
 
   test do
-    system "#{bin}/orvpass", "--version"
-    system "#{bin}/orvpass", "doctor"
+    assert_match "orvpass", shell_output("#{bin}/orvpass --version")
   end
 end

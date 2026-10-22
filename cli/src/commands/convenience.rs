@@ -142,7 +142,24 @@ pub fn show_qr_preview_help() {
 }
 
 pub fn detect_current_shell() {
-    let shell = std::env::var("SHELL").unwrap_or_else(|_| "zsh".into());
-    println!("🐚 Active shell detected: {}", shell);
-    println!("👉 Add shortcuts via: eval \"$(orvpass init-shell)\"");
+    #[cfg(windows)]
+    {
+        if std::env::var("PSModulePath").is_ok() {
+            println!("🐚 Active shell detected: Windows PowerShell");
+            println!("👉 Add shortcuts to your PowerShell profile ($PROFILE):");
+            println!("   orvpass init-shell | Out-File -Append $PROFILE");
+        } else {
+            println!("🐚 Active shell detected: Windows Command Prompt (cmd.exe)");
+            println!("👉 Add shortcuts via doskey macros:");
+            println!("   doskey op=orvpass $*");
+            println!("   doskey opg=orvpass get $*");
+            println!("   doskey opl=orvpass list $*");
+        }
+    }
+    #[cfg(not(windows))]
+    {
+        let shell = std::env::var("SHELL").unwrap_or_else(|_| "zsh".into());
+        println!("🐚 Active shell detected: {}", shell);
+        println!("👉 Add shortcuts via: eval \"$(orvpass init-shell)\"");
+    }
 }

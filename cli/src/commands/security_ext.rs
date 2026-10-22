@@ -302,6 +302,21 @@ pub fn alias_wrapper(shell: &str) {
             println!("alias opa 'orvpass add'");
             println!("alias opl 'orvpass list'");
         }
+        "powershell" | "pwsh" => {
+            println!("Set-Alias op orvpass");
+            println!("function opg {{ orvpass get $args }}");
+            println!("function opa {{ orvpass add $args }}");
+            println!("function opl {{ orvpass list $args }}");
+            println!("function ops {{ orvpass search $args }}");
+            println!("function opt {{ orvpass totp $args }}");
+        }
+        "cmd" => {
+            println!("doskey op=orvpass $*");
+            println!("doskey opg=orvpass get $*");
+            println!("doskey opa=orvpass add $*");
+            println!("doskey opl=orvpass list $*");
+            println!("doskey ops=orvpass search $*");
+        }
         _ => {}
     }
 }
