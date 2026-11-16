@@ -31,3 +31,9 @@ impl AttemptRateLimiter {
         }
     }
 }
+
+impl Default for AttemptRateLimiter {
+    fn default() -> Self {
+        Self::new()
+    }
+}

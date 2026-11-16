@@ -38,8 +38,8 @@ pub fn extract_file(item_title: &str, attachment_name: &str, output_path: Option
     let items = database::load_items();
     if let Some(item) = items.iter().find(|i| i.title.eq_ignore_ascii_case(item_title)) {
         let field_key = format!("attachment:{}", attachment_name);
-        if let Some(field) = item.custom_fields.iter().find(|f| f.name.eq_ignore_ascii_case(&field_key) || f.name.eq_ignore_ascii_case(attachment_name)) {
-            if let Ok(bytes) = general_purpose::STANDARD.decode(&field.value) {
+        if let Some(field) = item.custom_fields.iter().find(|f| f.name.eq_ignore_ascii_case(&field_key) || f.name.eq_ignore_ascii_case(attachment_name))
+            && let Ok(bytes) = general_purpose::STANDARD.decode(&field.value) {
                 let target = output_path.unwrap_or_else(|| attachment_name.to_string());
                 if let Err(e) = fs::write(&target, &bytes) {
                     println!("\x1b[1;38;2;248;113;113m✖ Failed to write extracted file:\x1b[0m {}", e);
@@ -48,7 +48,6 @@ pub fn extract_file(item_title: &str, attachment_name: &str, output_path: Option
                 }
                 return;
             }
-        }
         println!("\x1b[1;38;2;248;113;113m✖ Attachment '{}' not found on credential '{}'.\x1b[0m", attachment_name, item_title);
     } else {
         println!("\x1b[1;38;2;248;113;113m✖ Credential '{}' not found in vault.\x1b[0m", item_title);

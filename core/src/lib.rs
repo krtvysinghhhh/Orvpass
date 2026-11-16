@@ -1,3 +1,5 @@
+#![allow(clippy::collapsible_if)]
+
 pub mod build;
 pub mod crypto;
 mod info;

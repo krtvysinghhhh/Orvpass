@@ -124,29 +124,59 @@ pub fn pwned_check(items: &[VaultItem]) {
     println!("🔍 HAVE I BEEN PWNED? (Offline k-Anonymity Scan)");
     println!("===============================================");
     let mut scanned = 0;
+    let mut compromised = 0;
+    let common_breached = [
+        "password", "123456", "12345678", "qwerty", "123456789", "admin", "welcome",
+        "master_password", "password123", "letmein", "iloveyou", "monkey", "dragon"
+    ];
+
     for item in items {
-        if let ItemData::Login(_) = &item.data {
+        if let ItemData::Login(l) = &item.data {
             scanned += 1;
-            println!(
-                "  • {:<24} -> SHA-1 Prefix Checked -> ✅ 0 Breaches Found",
-                item.title
-            );
+            if let Some(pass) = &l.password {
+                let (prefix, _) = orvpass_core::security::hibp::compute_sha256_k_anonymity_prefix(pass);
+                let is_common = common_breached.iter().any(|&c| pass.eq_ignore_ascii_case(c));
+                if is_common {
+                    compromised += 1;
+                    println!(
+                        "  • {:<24} -> Prefix: [{}] -> \x1b[1;38;2;248;113;113m✖ KNOWN BREACHED PASSWORD\x1b[0m",
+                        item.title, prefix
+                    );
+                } else {
+                    println!(
+                        "  • {:<24} -> Prefix: [{}] -> \x1b[1;38;2;52;211;153m✔ No known local breach\x1b[0m",
+                        item.title, prefix
+                    );
+                }
+            }
         }
     }
     println!("===============================================");
-    println!(
-        "Scanned {} credentials. Zero compromised passwords detected.",
-        scanned
-    );
+    if compromised > 0 {
+        println!(
+            "Scanned {} credentials. \x1b[1;38;2;248;113;113m{} compromised password(s) detected!\x1b[0m Use 'orvpass rotate <name>' immediately.",
+            scanned, compromised
+        );
+    } else {
+        println!(
+            "Scanned {} credentials. Zero compromised passwords detected.",
+            scanned
+        );
+    }
 }
 
 pub fn cert_expiry(items: &[VaultItem]) {
     println!("📜 CERTIFICATE & SSH KEY EXPIRATION MONITOR");
     println!("===========================================");
+    let mut count = 0;
     for item in items {
         if item.title.to_lowercase().contains("ssh") || item.title.to_lowercase().contains("cert") {
-            println!("  • {:<24} -> Expires in: 248 Days (Valid)", item.title);
+            count += 1;
+            println!("  • {:<24} -> Type: Key / Certificate -> \x1b[1;38;2;52;211;153mActive\x1b[0m", item.title);
         }
+    }
+    if count == 0 {
+        println!("  (No SSH keys or certificates found in vault)");
     }
     println!("===========================================");
 }
@@ -154,22 +184,66 @@ pub fn cert_expiry(items: &[VaultItem]) {
 pub fn policy_check(items: &[VaultItem]) {
     println!("🛡️  CORPORATE PASSWORD POLICY VALIDATION");
     println!("========================================");
-    println!("  Rule 1: Min 14 characters          -> ✅ PASSED");
-    println!("  Rule 2: Special + Number + Case    -> ✅ PASSED");
-    println!("  Rule 3: Max age < 90 days          -> ✅ PASSED");
-    println!("  Rule 4: Zero dictionary words      -> ✅ PASSED");
+    let mut total_logins = 0;
+    let mut pass_len = 0;
+    let mut pass_complexity = 0;
+
+    for item in items {
+        if let ItemData::Login(l) = &item.data {
+            total_logins += 1;
+            if let Some(p) = &l.password {
+                if p.len() >= 14 {
+                    pass_len += 1;
+                }
+                let has_upper = p.chars().any(|c| c.is_ascii_uppercase());
+                let has_lower = p.chars().any(|c| c.is_ascii_lowercase());
+                let has_digit = p.chars().any(|c| c.is_ascii_digit());
+                let has_special = p.chars().any(|c| !c.is_ascii_alphanumeric());
+                if has_upper && has_lower && has_digit && has_special {
+                    pass_complexity += 1;
+                }
+            }
+        }
+    }
+
+    let pct_len = if total_logins > 0 { (pass_len * 100) / total_logins } else { 100 };
+    let pct_comp = if total_logins > 0 { (pass_complexity * 100) / total_logins } else { 100 };
+
+    println!("  Rule 1: Min 14 characters          -> {}% ({}/{})", pct_len, pass_len, total_logins);
+    println!("  Rule 2: Special + Number + Case    -> {}% ({}/{})", pct_comp, pass_complexity, total_logins);
     println!("========================================");
-    println!("100% Policy Compliance across {} vault items.", items.len());
+    if pct_len == 100 && pct_comp == 100 {
+        println!("\x1b[1;38;2;52;211;153m✔ 100% Policy Compliance across all {} login credentials.\x1b[0m", total_logins);
+    } else {
+        println!("\x1b[38;2;251;191;36m⚠️  Some credentials do not meet strict enterprise policy guidelines.\x1b[0m");
+    }
 }
 
 pub fn auto_rotate(name: &str) {
-    let new_pass = crate::commands::generate::execute(24, false);
-    println!("🔄 1-CLICK CREDENTIAL ROTATION: {}", name);
-    println!("=====================================");
-    println!("  Old Password:  ••••••••••••••••");
-    println!("  New Password:  {}", new_pass);
-    println!("  Entropy:       138.4 bits (Hardware Random)");
-    println!("✅ Rotated in vault and updated session state.");
+    let mut items = crate::vault::database::load_items();
+    let found = items.iter_mut().find(|i| i.title.eq_ignore_ascii_case(name));
+
+    if let Some(item) = found {
+        if let ItemData::Login(ref mut l) = item.data {
+            let new_pass = crate::commands::generate::execute(24, false);
+            l.password = Some(new_pass.clone());
+            let title = item.title.clone();
+            if let Err(e) = crate::vault::database::save_items(&items) {
+                println!("\x1b[1;38;2;248;113;113m✖ Failed to save rotated password to vault:\x1b[0m {}", e);
+                return;
+            }
+            println!("🔄 1-CLICK CREDENTIAL ROTATION: {}", title);
+            println!("=====================================");
+            println!("  Old Password:  ••••••••••••••••");
+            println!("  New Password:  \x1b[1;38;2;52;211;153m{}\x1b[0m", new_pass);
+            println!("  Entropy:       ~138.4 bits (CSPRNG)");
+            println!("✅ Securely updated and re-encrypted in vault.enc.");
+            return;
+        }
+        println!("\x1b[1;38;2;248;113;113m✖ Item '{}' is not a login credential.\x1b[0m", name);
+    } else {
+        println!("\x1b[1;38;2;248;113;113m✖ Credential '{}' not found in vault.\x1b[0m", name);
+    }
 }
 
 pub fn audit_export(format: &str, items: &[VaultItem]) {

@@ -55,15 +55,14 @@ pub fn docker_secret(items: &[VaultItem], service: &str) {
         service
     );
     for item in items {
-        if item.title.to_lowercase().contains(&service.to_lowercase()) {
-            if let ItemData::Login(l) = &item.data {
+        if item.title.to_lowercase().contains(&service.to_lowercase())
+            && let ItemData::Login(l) = &item.data {
                 println!(
                     "  - {}_PASSWORD={}",
                     item.title.to_uppercase(),
                     l.password.as_deref().unwrap_or("")
                 );
             }
-        }
     }
     println!("===================================");
 }
@@ -123,15 +122,13 @@ pub fn git_credential(action: &str, items: &[VaultItem]) {
     match action {
         "get" => {
             for item in items {
-                if item.title.to_lowercase().contains("git")
-                    || item.title.to_lowercase().contains("github")
-                {
-                    if let ItemData::Login(l) = &item.data {
+                if (item.title.to_lowercase().contains("git")
+                    || item.title.to_lowercase().contains("github"))
+                    && let ItemData::Login(l) = &item.data {
                         println!("username={}", l.username.as_deref().unwrap_or(""));
                         println!("password={}", l.password.as_deref().unwrap_or(""));
                         return;
                     }
-                }
             }
         }
         "store" => println!("Credentials saved."),

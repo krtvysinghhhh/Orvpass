@@ -5,43 +5,44 @@ use orvpass_core::models::ItemData;
 
 pub fn copy_password_quick(name: &str) {
     let items = database::load_items();
-    if let Some(item) = items.iter().find(|i| i.title.eq_ignore_ascii_case(name)) {
-        if let ItemData::Login(l) = &item.data {
-            if let Some(p) = &l.password {
+    if let Some(item) = items.iter().find(|i| i.title.eq_ignore_ascii_case(name))
+        && let ItemData::Login(l) = &item.data
+            && let Some(p) = &l.password {
                 clipboard::copy_with_notification(p, 15);
                 println!("🔑 Copied password for '{}' to clipboard (auto-wipes in 15s).", item.title);
                 return;
             }
-        }
-    }
     println!("❌ Item '{}' not found or has no password.", name);
 }
 
 pub fn copy_username_quick(name: &str) {
     let items = database::load_items();
-    if let Some(item) = items.iter().find(|i| i.title.eq_ignore_ascii_case(name)) {
-        if let ItemData::Login(l) = &item.data {
-            if let Some(u) = &l.username {
+    if let Some(item) = items.iter().find(|i| i.title.eq_ignore_ascii_case(name))
+        && let ItemData::Login(l) = &item.data
+            && let Some(u) = &l.username {
                 crate::clipboard::copy_with_notification(u, 15);
                 println!("👤 Copied username for '{}' to clipboard ({}).", item.title, u);
                 return;
             }
-        }
-    }
     println!("❌ Item '{}' not found or has no username.", name);
 }
 
 pub fn copy_totp_quick(name: &str) {
     let items = database::load_items();
     if let Some(item) = items.iter().find(|i| i.title.eq_ignore_ascii_case(name)) {
-        if let Ok(code) = orvpass_core::totp::generate_totp(b"TOTPSECRET2026", 30) {
-            let code_str = format!("{:06}", code);
-            crate::clipboard::copy_with_notification(&code_str, 15);
-            println!("⏳ Copied 2FA TOTP code for '{}' to clipboard ({})", item.title, code_str);
+        if let Some(sec) = crate::commands::totp::extract_totp_secret(item) {
+            if let Ok(code) = orvpass_core::totp::generate_totp(sec.as_bytes(), 30) {
+                let code_str = format!("{:06}", code);
+                crate::clipboard::copy_with_notification(&code_str, 15);
+                println!("⏳ Copied 2FA TOTP code for '{}' to clipboard ({})", item.title, code_str);
+                return;
+            }
+        } else {
+            println!("⚠️  Item '{}' has no TOTP secret configured.", item.title);
             return;
         }
     }
-    println!("❌ Item '{}' not found or TOTP not configured.", name);
+    println!("❌ Item '{}' not found in vault.", name);
 }
 
 pub fn quick_add_item(title: &str, username: Option<String>, password: Option<String>) {

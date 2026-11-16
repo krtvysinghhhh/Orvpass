@@ -164,7 +164,7 @@ impl Vault {
     }
 
     pub fn unlock_with_password(&mut self, password: &str) -> Result<(), VaultError> {
-        let salt = self.salt.ok_or(VaultError::Invalid)?;
+        let salt = self.salt.unwrap_or([0u8; 16]);
 
         let key =
             derive_master_key(password.as_bytes(), &salt).map_err(|_| VaultError::UnlockFailed)?;

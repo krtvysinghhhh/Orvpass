@@ -19,5 +19,5 @@ pub fn is_unlocked() -> bool {
 }
 
 pub fn key() -> Option<[u8; 32]> {
-    SESSION.lock().unwrap().clone()
+    *SESSION.lock().unwrap()
 }

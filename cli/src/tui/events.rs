@@ -5,8 +5,8 @@ use orvpass_core::totp::generate_totp;
 use std::time::Duration;
 
 pub fn handle_events(app: &mut TuiApp) -> anyhow::Result<()> {
-    if event::poll(Duration::from_millis(50))? {
-        if let Event::Key(key) = event::read()? {
+    if event::poll(Duration::from_millis(50))?
+        && let Event::Key(key) = event::read()? {
             if app.is_searching {
                 match key.code {
                     KeyCode::Esc | KeyCode::Enter => {
@@ -60,30 +60,24 @@ pub fn handle_events(app: &mut TuiApp) -> anyhow::Result<()> {
                         app.show_password = !app.show_password;
                     }
                     KeyCode::Enter | KeyCode::Char('c') => {
-                        if let Some(item) = app.selected_item() {
-                            if let ItemData::Login(login) = &item.data {
-                                if let Some(pass) = &login.password {
-                                    if let Ok(mut board) = arboard::Clipboard::new() {
+                        if let Some(item) = app.selected_item()
+                            && let ItemData::Login(login) = &item.data
+                                && let Some(pass) = &login.password
+                                    && let Ok(mut board) = arboard::Clipboard::new() {
                                         let _ = board.set_text(pass);
                                         app.set_status(
                                             "Password copied to clipboard (Auto-wipe 15s)!",
                                         );
                                     }
-                                }
-                            }
-                        }
                     }
                     KeyCode::Char('u') => {
-                        if let Some(item) = app.selected_item() {
-                            if let ItemData::Login(login) = &item.data {
-                                if let Some(user) = &login.username {
-                                    if let Ok(mut board) = arboard::Clipboard::new() {
+                        if let Some(item) = app.selected_item()
+                            && let ItemData::Login(login) = &item.data
+                                && let Some(user) = &login.username
+                                    && let Ok(mut board) = arboard::Clipboard::new() {
                                         let _ = board.set_text(user);
                                         app.set_status("Username copied to clipboard!");
                                     }
-                                }
-                            }
-                        }
                     }
                     KeyCode::Char('t') => {
                         let totp_code = generate_totp(b"ORVPASS_SEED_2026", 30).unwrap_or(123456);
@@ -96,6 +90,5 @@ pub fn handle_events(app: &mut TuiApp) -> anyhow::Result<()> {
                 }
             }
         }
-    }
     Ok(())
 }

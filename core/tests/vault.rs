@@ -126,3 +126,28 @@ fn empty_vault_reports_empty() {
     assert!(vault.is_empty());
     assert_eq!(vault.len(), 0);
 }
+
+#[test]
+fn vault_can_unlock_with_password() {
+    let path = temp_vault_path();
+    let password = "TestVaultPassword2026!";
+    let key = SecretKey::from_password(password).unwrap();
+
+    let mut vault = Vault::new_locked_at(&path);
+    vault.initialize(&key).unwrap();
+    vault.create_login("TestLogin").unwrap();
+    vault.save(&key).unwrap();
+    vault.lock();
+
+    let mut reload_vault = Vault::new_locked_at(&path);
+    assert!(reload_vault.is_locked());
+    reload_vault.unlock_with_password(password).unwrap();
+    assert!(reload_vault.is_unlocked());
+    assert_eq!(reload_vault.len(), 1);
+
+    // Wrong password must fail
+    let mut fail_vault = Vault::new_locked_at(&path);
+    assert!(fail_vault.unlock_with_password("wrong_pass").is_err());
+
+    std::fs::remove_file(path).ok();
+}

@@ -42,12 +42,16 @@ pub fn execute(name: &str, password: bool, username: bool, totp: bool, copy: boo
         }
 
         if totp {
-            let code = generate_totp(b"ORVPASS_SEED_2026", 30).unwrap_or(123456);
-            let code_str = format!("{:06}", code);
-            if copy {
-                crate::clipboard::copy_with_notification(&code_str, 15);
+            if let Some(sec) = crate::commands::totp::extract_totp_secret(item) {
+                let code = generate_totp(sec.as_bytes(), 30).unwrap_or(0);
+                let code_str = format!("{:06}", code);
+                if copy {
+                    crate::clipboard::copy_with_notification(&code_str, 15);
+                } else {
+                    println!("{}", code_str);
+                }
             } else {
-                println!("{}", code_str);
+                println!("\x1b[38;2;251;191;36m⚠️  Item '{}' has no TOTP secret configured.\x1b[0m", item.title);
             }
             return;
         }

@@ -22,7 +22,7 @@ pub fn execute(items: &[VaultItem], json_output: bool) {
         }
     }
 
-    for (_, titles) in &pass_map {
+    for titles in pass_map.values() {
         if titles.len() > 1 {
             reused_count += titles.len();
         }

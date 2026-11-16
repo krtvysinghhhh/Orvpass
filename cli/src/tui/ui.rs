@@ -229,23 +229,26 @@ fn render_main_content(frame: &mut Frame, app: &TuiApp, area: Rect) {
         .border_style(Style::default().fg(Color::Rgb(79, 70, 229)));
 
     if let Some(item) = app.selected_item() {
-        let mut detail_lines: Vec<Line> = Vec::new();
-
-        detail_lines.push(Line::from(vec![
-            Span::styled("Title:     ", Style::default().fg(Color::DarkGray)),
-            Span::styled(
-                &item.title,
-                Style::default()
-                    .fg(Color::White)
-                    .add_modifier(Modifier::BOLD),
-            ),
-        ]));
-        detail_lines.push(Line::from(Span::styled(
-            "Entropy Score:  ★★★★★ (138 bits)",
-            Style::default().fg(Color::Green),
-        )));
-        detail_lines.push(Line::from(Span::styled("Tags:          [production, infra, cloud]", Style::default().fg(Color::Cyan))));
-        detail_lines.push(Line::from(""));
+        let mut detail_lines: Vec<Line> = vec![
+            Line::from(vec![
+                Span::styled("Title:     ", Style::default().fg(Color::DarkGray)),
+                Span::styled(
+                    &item.title,
+                    Style::default()
+                        .fg(Color::White)
+                        .add_modifier(Modifier::BOLD),
+                ),
+            ]),
+            Line::from(Span::styled(
+                "Entropy Score:  ★★★★★ (138 bits)",
+                Style::default().fg(Color::Green),
+            )),
+            Line::from(Span::styled(
+                "Tags:          [production, infra, cloud]",
+                Style::default().fg(Color::Cyan),
+            )),
+            Line::from(""),
+        ];
 
         match &item.data {
             ItemData::Login(login) => {

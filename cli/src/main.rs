@@ -448,11 +448,9 @@ fn main() -> anyhow::Result<()> {
             let items = vault::database::load_items();
             commands::audit::execute(&items, json);
         }
-        Some(Commands::Sss { split, recover }) => {
+        Some(Commands::Sss { split: _, recover }) => {
             if let Some(shards) = recover {
                 commands::sss::recover(shards);
-            } else if split {
-                commands::sss::split(None);
             } else {
                 commands::sss::split(None);
             }
